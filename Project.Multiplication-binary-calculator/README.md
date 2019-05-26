@@ -1,4 +1,4 @@
-# The Second Assembly Language Project      *Multiplication Binary Calculator*
+# The Second Assembly Language Project          *Multiplication Binary Calculator*
 ## Project Task Description
 * Enter two decimal non-symbol numbers (≤65535) on the keyboard and calculate the multiplication of the two numbers. product,The results are output in decimal, hexadecimal, and binary, respectively.
 * E.g: When you input number 12345 and 65535,you can see this on the screen:
