@@ -18,4 +18,4 @@ A meta-assembler is a term used in some circles for "a program that accepts the 
 Assembly time is the computational step where an assembler is run.*
 ## Textbook recommendation
 * *Assembly Language* Author: Wang Shuang ,Tsinghua University
-* *Assembly Language Programming* Author: White Hong Huan, Zhejiang University
+* *Assembly Language Programming* Author: Bai Honghuan, Zhejiang University
