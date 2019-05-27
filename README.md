@@ -1,7 +1,7 @@
 # The-Learning-Course-of-Assembly-Language-Programming
 The learning process of assembly language programming has recorded my experience and experience in learning assembly language.
 ## Warning Before The Project
-*Part of the project here comes from the curriculum design of related courses in the College of Computer Science, Zhejiang University. **If you are a student from Zhejiang University, please do not copy the source code directly,because the relevant design code of the course will be checked.If you insist on copying the code directly, the consequences will be your own responsibility.***
+*Part of the project heres come from the curriculum design of related courses in the College of Computer Science, Zhejiang University. **If you are a student from Zhejiang University, please do not copy the source code directly,because the relevant design code of the course will be checked.If you insist on copying the code directly, the consequences will be your own responsibility.***
 ## What is Assembly Language
 *An assembly language (or assembler language), often abbreviated asm, is any low-level programming language in which there is a very strong correspondence between the program's statements and the architecture's machine code instructions.
 Assembly code is converted into executable machine code by a utility program referred to as an assembler. The conversion process is referred to as assembly, or assembling the source code. Assembly language usually has one statement per machine instruction, but comments and statements that are assembler directives, macros, and symbolic labels of program and memory locations are often also supported.
