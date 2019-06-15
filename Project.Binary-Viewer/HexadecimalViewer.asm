@@ -6,10 +6,12 @@ data segment use16
 	isPointer dd 0 		;表示当前的阅读的文件位置	
 	countIndex dd 0 	;用于计数，表征文件容量
 	dataIndex dw 0 	;指示控制台显示的数据量大小
-	dataPerPage db 256 dup(' ')	;保存当前显示的文件数据信息
-	controlLine db 9 dup('0')	;行输出控制的指示符
-	whereData dw 0 	;指示打印数据位置
+	controlLine db 9 dup('$')	;行输出控制的指示符
+	dataPerPage db 0100h dup('$')	;保存当前显示的文件数据信息
+	Welcome db 'Please input filename:','$'	;输入文件名前的提示
+	Error db 'Cannot open file!','$'	;文件名不存在的提示
 	whereAscii dw 0	;指示打印数据ASCII值位置
+	whereData dw 0 	;指示打印数据位置
 data ends
 code segment use16
 switchKey:
@@ -25,28 +27,100 @@ switchKey:
 	jz whilePressPageUp
 	cmp ax,5100h	;cmp with PageDown
 	jz whilePressPageDown
+	call whilePressEsc
+whilePressHome:		;对Home键进行响应
+	mov isPointer,0
+	mov ah,42h
+	mov bx,filePointer
+	xor ecx,ecx
+	xor edx,edx
+	int 21h
+	jmp Refresh		;刷新显示
+whilePressEnd:	;对End键进行响应
+	xor eax,eax
+	xor ebx,ebx	;清空eax、ebx寄存器，保证下面正确计数
+inPageDownLoop:	;循环向下翻页
+	add eax,100h
+	cmp eax,countIndex
+	jc isEndOfPage	;判断是是否到达页尾
+	mov isPointer,ebx	;移动文件指针
+	call whilePressPageDown		;反复向下翻页
+isEndOfPage:	;到达页尾
+	add ebx,100h	;循环后更新ebx，也即用eax判断是否到达末尾
+	jmp inPageDownLoop
+whilePressPageUp:	;对PageUp键进行响应
+	mov eax,isPointer
+	cmp eax,100h
+	jc switchKey	;判断是否在页首，页首时屏蔽PageUp键
+	sub eax,100h
+	mov isPointer,eax
+	mov edx,eax	;移动文件指针到新位置
+	shr eax,010h
+	mov ecx,eax
+	mov ah,42h
+	mov bx,filePointer
+	int 21h
+	jmp Refresh	;刷新显示
+whilePressPageDown:	;对PageDown键进行响应
+	mov eax,isPointer	;获取当前位置
+	add eax,100h	;判断是否位于页末，页末屏蔽PageDown
+	cmp eax,countIndex
+	jbe pageTurning
+	sub eax,100h	;超过文件大小则变为原值
+pageTurning:	;向下翻页
+	mov isPointer,eax
+	mov edx,eax	;移动文件指针
+	shr eax,010h
+	mov ecx,eax
+	mov ah,42h
+	mov bx,filePointer	;更新相关参数
+	int 21h
+	jmp Refresh	;刷新显示
 begin:
 	mov ax,0B800h                       
 	mov es,ax	;es与显卡关联
 	mov ax,data
 	mov ds,ax	;关联data和ds
+	mov ah,09h
+	lea dx,Welcome
+	int 21h
+	mov ah,02h
+	mov dx,0Dh
+	int 21h
+	mov dx,0Ah
+	int 21h		;打印输入文件名提示信息
 	lea dx,file
-	mov ah,10
+	mov ah,0Ah
 	int 21h		;读入文件名
-	mov cl,byte ptr file[1]
+	mov cl,file+1
 	add cx,offset file+2
 	mov di,cx	;将读入的文件名末尾置'\0'
 	mov ax,3D30h
 	lea dx,file+2
 	mov byte ptr[di],0
-	int 21h		;打开用户指定的文件
-	jnc Initialise
-exit:
+	int 21h	;打开用户指定的文件
+	jnc Initialise		;当文件名不存在时报错并关闭程序，否则跳过报错开始初始化程序
+	mov ah,02h
+	mov dx,0Dh
+	int 21h
+	mov dx,0Ah
+	int 21h
+	mov ah,09h
+	lea dx,Error
+	int 21h
+whilePressEsc:	;退出程序的入口，在退出程序时首先关闭文件
+	mov ah,02h
+	mov dx,0Ah
+	int 21h
+	mov ah, 3Eh
+	mov bx, filePointer
+	int 21h
 	mov ax, 4C00h
 	int 21h		;退出程序
 Initialise:		;此函数用于计算、存储文件信息并初始化窗口
 	mov filePointer, ax
 	push ax		;存储文件相关信息
+	xor edx,edx
 	mov ax,4202h
 	pop bx
 	xor cx,cx
@@ -54,7 +128,7 @@ Initialise:		;此函数用于计算、存储文件信息并初始化窗口
 	shl edx,10h
 	mov countIndex,eax
 	add countIndex,edx	;计算文件容量
-	mov ax,4200h
+	mov ax,4200h	;置ah为42，同时清空al
 	int 21h		;初始化首页的16行字符
 Refresh:		;用于刷新各类型数据信息
 	lea di,controlLine+7	;调整数组位置信息
@@ -72,20 +146,20 @@ inLineLoop:		;对行号转换的内循环
 	add edx,30h 	;转换为对应字符串
 	cmp edx,39h 	;判断是否发生进位
 	jng saveLineIndex
-	add edx,7		;对字母判断
+	add edx,07h		;对字母判断
 saveLineIndex:		;保存行号并完成相关参数配置工作
-	mov byte ptr [di],dl
+	mov [di],dl
 	sub edi,1
 	loop transLineIndexLoop	;进入转换循环，循环完成行号信息设置
 	add edi,09h
 	mov edx,':'
-	mov byte ptr [di],dl		;行号后输出冒号
+	mov [di],dl		;行号后输出冒号
 	mov ecx,10h
 	xor esi,esi
 	xor ebx,ebx
 resetMonitor:	;更新控制台的显示
 	mov es:[bx+si],ax
-	add esi,2
+	add esi,02h
 	cmp esi,0A0h		;换行判断
 	jnz resetMonitor
 	xor esi,esi
@@ -94,7 +168,7 @@ resetMonitor:	;更新控制台的显示
 	lea di,dataPerPage
 	mov ecx,0100h
 inDataLoop:		;更新页面中实时显示的数据信息
-	mov byte ptr[di],al
+	mov [di],al
 	add edi,1
 	loop inDataLoop
 	mov eax,countIndex
@@ -133,13 +207,13 @@ charOfLineControl:	;对打印过程中是否为首行、字符位是否需要改
 	inc eax		;对进位字符控制，将其自增1
 	cmp al,3Ah	;判断是否需要对数字转换为字母
 	jnz lineControlWhilePrinting
-	add eax,7
+	add eax,07h
 lineControlWhilePrinting:	;在打印行号时进行必要格式控制与转换
 	mov [di],al
 	mov ah,07h
 	mov es:[ebx+esi],eax
 	add di,1
-	add esi,2	;加载行号信息
+	add esi,02h	;加载行号信息
 	cmp esi,012h
 	jnz charOfLineControl	;若尚未完成加载则循环完成加载
 	pop di 		;解除保护，重新恢复di初始值
@@ -148,7 +222,7 @@ printChar:		;打印字符它的十六进制形式ASCII码
 	mov ah,07h
 	mov al,[di]
 	mov es:[bx+si],ax
-	add esi,2
+	add esi,02h
 	add ecx,1
 	mov whereData,si
 	mov si,whereAscii
@@ -171,12 +245,12 @@ isHigher:	;对高位ASCII码取出讨论
 	mov al,dh 	;恢复先前al数值
 	mov ah,07h
 	mov es:[ebx+esi],eax
-	add esi,2	;实现对高位ASCII码显示
+	add esi,02h	;实现对高位ASCII码显示
 	pop ax
 	mov al,ah
 	mov ah,07h 	;恢复ah值
 	mov es:[ebx+esi],eax
-	add esi,2	;实现对低位ASCII码显示
+	add esi,02h	;实现对低位ASCII码显示
 	cmp esi,05Ah
 	jz setSeparator
 	cmp esi,042h
@@ -187,27 +261,23 @@ isHigher:	;对高位ASCII码取出讨论
 	jmp short printSet
 setSeparator:	;设置打印分界线
 	mov al,'|'
+	mov ah,0Fh 	;设置颜色
 printSet:	;设置打印参数
 	mov es:[ebx+esi],eax
-	add esi,2
+	add esi,02h
 	mov whereAscii,si
 	mov dx,whereData
 	add edi,1	;存储有关参数
-	cmp edx,150
+	cmp edx,96h
 	jnz lineFeed	;换行输出
-	add ebx,160
-	mov edx,118
-	mov recordPosChar,dx
-	mov edx,20
-	mov recordPosAscii,dx 	;控制输出格式参数
+	add ebx,0A0h
+	mov edx,76h
+	mov whereData,dx
+	mov edx,14h
+	mov whereAscii,dx 	;控制输出格式参数
 lineFeed:
 	cmp cx,dataIndex
 	jnz printLine
 	call switchKey
-whilePressEsc:	;关闭文件
-	mov ah, 3Eh
-	mov bx, filePointer
-	int 21h
-	call exit
 code ends
 end begin
