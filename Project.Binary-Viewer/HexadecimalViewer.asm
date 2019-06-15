@@ -38,7 +38,7 @@ whilePressHome:		;对Home键进行响应
 	jmp Refresh		;刷新显示
 whilePressEnd:	;对End键进行响应
 	xor eax,eax
-	xor ebx,ebx	;清空eax、ebx寄存器，保证下面正确计数
+	xor ebx,ebx	;清空eax、ebx寄存器，以保证下面正确计数
 inPageDownLoop:	;循环向下翻页
 	add eax,100h
 	cmp eax,countIndex
