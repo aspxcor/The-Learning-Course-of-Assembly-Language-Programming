@@ -9,10 +9,10 @@
 
 ![ascii](https://github.com/aspxcor/The-Learning-Course-of-Assembly-Language-Programming/blob/master/Project.ASCII/ascii.jpg)
 ## 文件介绍 | Document Introduction
-* ** ASCII.asm **是满足要求的最终项目源代码
-* ** ASCII.EXE **是项目编译后的Win32可执行文件。
-* ** ascii.c **是该项目的C语言参考源代码。
-* ** ascii.jpg **是此项目所需效果的示例图像。
+* **ASCII.asm**是满足要求的最终项目源代码
+* **ASCII.EXE**是项目编译后的Win32可执行文件。
+* **ascii.c**是该项目的C语言参考源代码。
+* **ascii.jpg**是此项目所需效果的示例图像。
 * **ASCII.asm** is the final project source code that meets the requirements
 * **ASCII.EXE** is the Win32 executable after the project is compiled.
 * **ascii.c** is the C language reference source code for this project.
