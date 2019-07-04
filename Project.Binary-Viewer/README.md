@@ -7,7 +7,7 @@
 
 The text hexadecimal open viewer based on the Dos environment in Win32 is implemented in assembly language. This sample code comprehensively combines the features and syntax of 16-bit assembly language and some 32-bit assembly language. It is a good learning assembly language. Practice and try.
 ## 文件介绍 | Document Introduction
-* ** hexfile.c **是此项目任务中提供的C语言源文件。
-* ** HexadecimalViewer.asm **是我的最终汇编语言程序的源代码。
+* **hexfile.c** 是此项目任务中提供的C语言源文件。
+* **HexadecimalViewer.asm** 是我的最终汇编语言程序的源代码。
 * **hexfile.c** is the C language source file provided in this project task.
 * **HexadecimalViewer.asm** is the source code of my final assembly language program.
