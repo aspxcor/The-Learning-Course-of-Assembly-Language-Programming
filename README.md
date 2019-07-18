@@ -1,7 +1,7 @@
 # 汇编语言程序设计|The-Learning-Course-of-Assembly-Language-Programming
-本项目**汇编语言程序设计**记录了我在学习汇编语言方面的经验和经验。
+本项目**汇编语言程序设计**记录了我在学习汇编语言方面的经验和教训。
 
-The learning process of assembly language programming has recorded my experience and experience in learning assembly language.
+The learning process of assembly language programming has recorded my experience in learning assembly language.
 ## 警告 | Warning Before The Project
 项目部分代码内容来自浙江大学计算机学院相关课程的课程设计作业。 
 
