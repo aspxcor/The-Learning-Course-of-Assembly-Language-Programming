@@ -2,6 +2,8 @@
 本项目**汇编语言程序设计**记录了我在学习汇编语言方面的经验和教训。
 
 The learning process of assembly language programming has recorded my experience in learning assembly language.
+## About Me
+My Blog: http://dingzhi.ga
 ## 警告 | Warning Before The Project
 项目部分代码内容来自浙江大学计算机学院相关课程的课程设计作业。 
 
